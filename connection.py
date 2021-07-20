@@ -18,7 +18,7 @@ class Connection():
 
     def getData(self, table:tuple, fields:tuple, selector = ''):
         connection, cursor = self.openDB()
-        select_query = f"""SELECT {','.join(fields)} FROM {','.join(table)} {selector};"""
+        select_query = f"""SELECT {','.join(fields)} FROM {','.join(table)} {selector} ORDER BY id;"""
         cursor.execute(select_query)
         connection.commit()
         result = cursor.fetchall()
@@ -68,8 +68,33 @@ class Connection():
     def getNextId(self, table):
         table = (table,)
         fields = ('id',)
+        print(self.getData(table, fields))
+        if self.getData(table, fields) == []:
+            return 1
         result = self.getData(table, fields)[-1][0] + 1
         return result
+
+    def register(self, login, password, role):
+        data = [{
+            'login': login,
+            'password': password,
+            'role': role
+        }]
+        find_login =  self.getData(('reg_base',),('login',), f" where login = '{login}'")
+        if not find_login:
+            self._postData('reg_base',data)
+        else:
+            print('Login is exist!')
+    
+    def login_check(self, login, password, role):
+        find_login =  self.getData(('reg_base',),('*',), f" where login = '{login}'")
+        if find_login and password == find_login[0][2] and find_login[0][3] == role:
+            return True
+        else: 
+            return False
+
+
+
 
 
 
