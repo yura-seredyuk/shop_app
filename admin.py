@@ -23,17 +23,18 @@ class Admin(Connection):
         date format for selector: 2020-6-12
         """
         if self.login_self():
-            categoryes = ['city_name','date_of_order', 'product_name']
+            categoryes = ['city_name','date_of_order', 'product_name', 'status']
             table = ('orders o',)
             fields = ("""o.id, concat(e.first_name,' ', e.last_name) as "employee", c.city_name, o.date_of_order, concat(c2.first_name,' ', c2.last_name) as "customer", p.product_name, o.price """,)
-            if category and category in categoryes and selector:
-                where = f"""where {category} = '{selector}'"""
+            if category and category in categoryes and selector != '':
+                selector = selector if isinstance(selector, bool) == bool else str(selector)
+                where = f"""where {category} = {selector}"""
             else:
                 where = ''
-            selector = f"""  inner JOIN employee e on e.id = o.employee_id 
-                            inner JOIN city c on c.id = o.city_id 
-                            inner JOIN customer c2 on c2.id = o.customer_id 
-                            inner JOIN product p on p.id = o.product_id {where}"""
+            selector = f""" left JOIN employee e on e.id = o.employee_id 
+                            left JOIN city c on c.id = o.city_id 
+                            left JOIN customer c2 on c2.id = o.customer_id 
+                            left JOIN product p on p.id = o.product_id {where}"""
             result = self.getData(table, fields, selector)
             fieldNames = ["id", "employee", "city_name","date_of_order", "customer", "product_name", "price" ]
             changeRes = []

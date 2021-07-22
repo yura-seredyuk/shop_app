@@ -89,7 +89,7 @@ class Connection():
     def login_check(self, login, password, role):
         find_login =  self.getData(('reg_base',),('*',), f" where login = '{login}'")
         if find_login and password == find_login[0][2] and find_login[0][3] == role:
-            return True
+            return find_login[0][0]
         else: 
             return False
 
